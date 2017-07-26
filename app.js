@@ -26,6 +26,10 @@ app.put('/autos/:id', (req, res, next) => {
     : next(new HTTPError(400, 'Missing auto in request body'))
 })
 
+app.delete('/autos/:id', (req, res, next) =>
+  dal.deleteAuto(req.params.id, callback(res, next))
+)
+
 app.use((err, req, res, next) => {
   console.log(req.method, ' ', req.path, ' ', 'error: ', err)
   res.status(err.status || 500)
