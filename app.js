@@ -57,6 +57,38 @@ app.delete('/autos/:id', (req, res, next) =>
   dal.deleteAuto(req.params.id, callback(res, next))
 )
 
+app.get('/autos', (req, res, next) => {
+  const limit = Number(pathOr(5, ['query', 'limit'], req))
+  const filter = pathOr(null, ['query', 'filter'], req)
+  const lastItem = pathOr(null, ['query', 'lastItem'], req)
+
+  dal.listAutos(
+    lastItem,
+    filter,
+    limit,
+    (err, data) =>
+      err
+        ? next(new HTTPError(err.status, err.message, err))
+        : res.status(200).send(data)
+  )
+})
+
+app.get('/suppliers', (req, res, next) => {
+  const limit = Number(pathOr(5, ['query', 'limit'], req))
+  const filter = pathOr(null, ['query', 'filter'], req)
+  const lastItem = pathOr(null, ['query', 'lastItem'], req)
+
+  dal.listSuppliers(
+    lastItem,
+    filter,
+    limit,
+    (err, data) =>
+      err
+        ? next(new HTTPError(err.status, err.message, err))
+        : res.status(200).send(data)
+  )
+})
+
 app.use((err, req, res, next) => {
   console.log(req.method, ' ', req.path, ' ', 'error: ', err)
   res.status(err.status || 500)
