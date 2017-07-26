@@ -5,6 +5,10 @@ const app = express()
 const dal = require('./dal')
 const port = process.env.PORT || 5555
 const HTTPError = require('node-http-error')
+const bodyParser = require('body-parser')
+const { pathOr } = require('ramda')
+
+app.use(bodyParser.json())
 
 app.get('/', function(req, res, next) {
   res.send('Welcome to the automobile api.')
@@ -13,6 +17,14 @@ app.get('/', function(req, res, next) {
 app.get('/autos/:id', (req, res, next) =>
   dal.getAuto(req.params.id, callback(res, next))
 )
+
+app.put('/autos/:id', (req, res, next) => {
+  const auto = pathOr(null, ['body'], req)
+
+  auto
+    ? dal.updateAuto(auto, req.params.id, callback(res, next))
+    : next(new HTTPError(400, 'Missing auto in request body'))
+})
 
 app.use((err, req, res, next) => {
   console.log(req.method, ' ', req.path, ' ', 'error: ', err)

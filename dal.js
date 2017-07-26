@@ -4,10 +4,11 @@ const dalHelper = require('./lib/dal-helper')
 const { assoc, prop, compose, omit } = require('ramda')
 
 const getAuto = (id, cb) => dalHelper.read('auto', 'ID', id, autoFormatter, cb)
+const updateAuto = (auto, id, cb) =>
+  dalHelper.update('auto', auto, 'ID', Number(id), cb)
 
-const dal = { getAuto }
+const dal = { getAuto, updateAuto }
 
-const autoFormatter = a =>
-  compose(omit('modelYear'), assoc('year', prop('modelYear', a)))(a)
+const autoFormatter = a => a
 
 module.exports = dal
