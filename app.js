@@ -7,6 +7,14 @@ const port = process.env.PORT || 5555
 const HTTPError = require('node-http-error')
 const bodyParser = require('body-parser')
 const { pathOr, keys } = require('ramda')
+const checkRequiredFields = require('./lib/check-required-fields')
+
+const autoReqFieldCheck = checkRequiredFields([
+  'modelYear',
+  'make',
+  'model',
+  'MSRP'
+])
 
 app.use(bodyParser.json())
 
@@ -21,9 +29,28 @@ app.get('/autos/:id', (req, res, next) =>
 app.put('/autos/:id', (req, res, next) => {
   const auto = pathOr(null, ['body'], req)
 
-  auto && keys(auto).length > 0
+  const missingFields = autoReqFieldCheck(auto)
+
+  auto && missingFields.length === 0
     ? dal.updateAuto(auto, req.params.id, callback(res, next))
-    : next(new HTTPError(400, 'Missing auto in request body'))
+    : next(
+        new HTTPError(400, 'Missing fields in request body', {
+          fields: missingFields
+        })
+      )
+})
+
+app.post('/autos', (req, res, next) => {
+  const auto = pathOr(null, ['body'], req)
+  const missingFields = autoReqFieldCheck(auto)
+
+  auto && missingFields.length === 0
+    ? dal.createAuto(auto, callback(res, next))
+    : next(
+        new HTTPError(400, 'Missing fields in request body', {
+          fields: missingFields
+        })
+      )
 })
 
 app.delete('/autos/:id', (req, res, next) =>
